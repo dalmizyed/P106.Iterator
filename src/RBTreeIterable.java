@@ -72,6 +72,10 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
          * @param max  the maximum value that the iterator will return
          */
         public TreeIterator(BinaryNode<R> root, Comparable<R> min, Comparable<R> max) {
+            this.min = min;
+            this.max = max;
+            this.stack = new Stack<>();
+            updateStack(root);
         }
 
         /**
@@ -86,12 +90,45 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
          * @param node the root node of the subtree to process
          */
         private void updateStack(BinaryNode<R> node) {
+            if (node != null) {
+                
+                // Check if node is less than maximum filter, if not, then cancel operation.
+                // If there is no maximum filter, then proceed as usual.
+                if (this.max != null && this.max.compareTo(node.data) > 0) {
+                    return;
+                }
+
+                // Check if node is greater than minimum filter
+                if (this.min != null) {
+                    if (this.min.compareTo(node.data) > 0 && node.getRight() != null) {
+
+                        // If not, make a recursive call on the argument node's right subtree.
+                        updateStack(node.getRight());
+
+                    } else if (this.min.compareTo(node.data) < 0 && node.getLeft() != null) {
+
+                        // If it is, then push the argument node onto the stack and make a recusive call on the left subtree.
+                        this.stack.push(node);
+                        updateStack(node.getLeft());
+                    }
+                } else {
+                    if (this.stack.isEmpty()) {
+                        this.stack.push(node);
+                    }
+                }
+                
+            }
         }
 
         /**
          * Returns true if the iterator has another value to return, and false otherwise.
          */
+        @Override
         public boolean hasNext() {
+            
+            if (!this.stack.isEmpty()) {
+                return true;
+            }
             return false;
         }
 
@@ -106,9 +143,61 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
          *
          * @throws NoSuchElementException if the iterator has no more values to return
          */
-        public R next() {
+        @Override
+        public R next() throws NoSuchElementException {
+            if (this.hasNext() == true) {
+                BinaryNode<R> nextNode = this.stack.pop();
+                this.updateStack(nextNode.getRight());
+                return nextNode.data;
+            }
             return null;
         }
+    }
+
+    // TEST METHODS
+    public static boolean testNonNullIterator() {
+        RBTreeIterable<Integer> tree = new RBTreeIterable<>();
+        if (tree.iterator() != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean simpleIterator() {
+        RBTreeIterable<Integer> tree = new RBTreeIterable<>();
+        tree.insert(5);
+
+        Integer nextData = tree.iterator().next();
+        if (5 == nextData) {
+            System.out.println(nextData);
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean nonSimpleIterator() { // DOESNT WORK RIGHT NOW
+        RBTreeIterable<Integer> tree = new RBTreeIterable<>();
+        tree.insert(1);
+        tree.insert(2);
+        tree.insert(3);
+        tree.insert(5);
+        tree.insert(7);
+        tree.insert(8);
+        tree.insert(9);
+        
+        tree.setIteratorMax(8);
+        tree.setIteratorMin(3);
+
+        while (tree.iterator().hasNext()) {
+            System.out.println(tree.iterator().next());
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Tree is not null: " + testNonNullIterator());
+        System.out.println("Simple Iterator: " + simpleIterator());
+        nonSimpleIterator();
     }
 
 }
