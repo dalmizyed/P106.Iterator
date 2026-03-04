@@ -223,7 +223,7 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
      * fails otherwise.
      */
     @Test
-    public static boolean test2() {
+    public void test2() {
 
         // Create iterable Red-Black Tree.
         RBTreeIterable<String> tree = new RBTreeIterable<>();
@@ -275,7 +275,7 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
      * fails otherwise.
      */
     @Test
-    public static boolean test3() {
+    public void test3() {
 
         // Create iterable Red-Black Tree.
         RBTreeIterable<Integer> tree = new RBTreeIterable<>();
