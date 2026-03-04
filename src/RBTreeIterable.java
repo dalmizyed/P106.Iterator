@@ -2,6 +2,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
+
 /**
  * This class extends RedBlackTree into a tree that supports iterating over the values it
  * stores in sorted, ascending order.
@@ -94,13 +97,13 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
                 
                 // Check if node is less than maximum filter, if not, then cancel operation.
                 // If there is no maximum filter, then proceed as usual.
-                if (this.max != null && this.max.compareTo(node.data) < 0) {
+                if (this.max != null && this.max.compareTo(node.getData()) < 0) {
                     return;
                 }
 
                 // Check if node is greater than minimum filter
                 if (this.min != null) {
-                    if (this.min.compareTo(node.data) > 0) {
+                    if (this.min.compareTo(node.getData()) > 0) {
                         // If not, make a recursive call on the argument node's right subtree.
                         if (node.getRight() != null) {
                             updateStack(node.getRight());
@@ -148,64 +151,17 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
             if (this.hasNext() == true) {
                 BinaryNode<R> nextNode = this.stack.pop();
                 this.updateStack(nextNode.getRight());
-                return nextNode.data;
+                return nextNode.getData();
             }
             return null;
         }
     }
 
-    // TEST METHODS
-    public static boolean testNonNullIterator() {
-        RBTreeIterable<Integer> tree = new RBTreeIterable<>();
-        if (tree.iterator() != null) {
-            return true;
-        }
-        return false;
-    }
 
-    public static boolean simpleIterator() {
-        RBTreeIterable<Integer> tree = new RBTreeIterable<>();
-        tree.insert(5);
+    //-----------------------------------------------------------------------------------------------------------------------------//
+    //                                                          TEST METHODS                                                       //
+    //-----------------------------------------------------------------------------------------------------------------------------//
 
-        Integer nextData = tree.iterator().next();
-        if (5 == nextData) {
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean nonSimpleIterator() {
-        RBTreeIterable<Integer> tree = new RBTreeIterable<>();
-        tree.insert(1);
-        tree.insert(2);
-        tree.insert(3);
-        tree.insert(5);
-        tree.insert(7);
-        tree.insert(8);
-        tree.insert(9);
-        
-        tree.setIteratorMax(8);
-        tree.setIteratorMin(3);
-
-        int[] returnValues = new int[4];
-        int i = 0;
-
-        Iterator<Integer> iterator = tree.iterator();
-        while (iterator.hasNext()) {
-            returnValues[i] = iterator.next();
-            i++;
-        }
-
-        int[] expectedValues = {3, 5, 7, 8};
-
-        for (int j = 0; j < returnValues.length; j++) {
-            if (returnValues[j] != expectedValues[j]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     /**
      * Tests an Integer tree with no duplicate values and an iterator with both a
@@ -213,10 +169,12 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
      * Inserted values: 3, 5, 7, 8, 9, 10, 25
      * Start point: 6
      * Stop point: 11
-     * @return true if iterator returns the following values: 7, 8, 9, 10 in ascending order, 
-     * false otherwise.
+     * 
+     * Passes if iterator returns the following values: 7, 8, 9, 10 in ascending order, 
+     * fails otherwise.
      */
-    public static boolean test1() {
+    @Test
+    public void test1() {
 
         // Create iterable Red-Black Tree.
         RBTreeIterable<Integer> tree = new RBTreeIterable<>();
@@ -251,12 +209,8 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
 
         // Check if returnValues == expectedValues.
         for (int j = 0; j < returnValues.length; j++) {
-            if (returnValues[j] != expectedValues[j]) {
-                return false;
-            }
+            Assertions.assertEquals(returnValues[j], expectedValues[j]);
         }
-
-        return true;
     }
 
     /**
@@ -264,9 +218,11 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
      * start point value, not a stop point.
      * Inserted values: "a", "b", "c", "c", "j", "j", "l", "o", "r", "w", "z"
      * Start point: "c"
-     * @return true if iterator returns the following values: "c", "j", "l", "o", "r", "w", "z" in ascending order, 
-     * false otherwise.
+     * 
+     * Passes if iterator returns the following values: "c", "j", "l", "o", "r", "w", "z" in ascending order, 
+     * fails otherwise.
      */
+    @Test
     public static boolean test2() {
 
         // Create iterable Red-Black Tree.
@@ -305,12 +261,8 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
 
         // Check if returnValues == expectedValues.
         for (int j = 0; j < returnValues.length; j++) {
-            if (!returnValues[j].equals(expectedValues[j])) {
-                return false;
-            }
+            Assertions.assertEquals(returnValues[j], expectedValues[j]);
         }
-
-        return true;
     }
 
     /**
@@ -318,9 +270,11 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
      * stop point value, not a start point.
      * Inserted values: 2, 50, 75, 99, 101, 250, 350, 500
      * Stop point: 100
-     * @return true if iterator returns the following values: 2, 50, 75, 99 in ascending order, 
-     * false otherwise.
+     * 
+     * Passes if iterator returns the following values: 2, 50, 75, 99 in ascending order, 
+     * fails otherwise.
      */
+    @Test
     public static boolean test3() {
 
         // Create iterable Red-Black Tree.
@@ -356,22 +310,7 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
 
         // Check if returnValues == expectedValues.
         for (int j = 0; j < returnValues.length; j++) {
-            if (returnValues[j] != expectedValues[j]) {
-                return false;
-            }
+            Assertions.assertEquals(returnValues[j], expectedValues[j]);
         }
-
-        return true;
     }
-
-    public static void main(String[] args) {
-        System.out.println("Tree is not null: " + testNonNullIterator());
-        System.out.println("Simple Iterator: " + simpleIterator());
-        System.out.println("Non-simple Iterator: " + nonSimpleIterator());
-        System.out.println("\nJUnit Tests:");
-        System.out.println("Test 1: " + test1());
-        System.out.println("Test 2: " + test2());
-        System.out.println("Test 3: " + test3());
-    }
-
 }
