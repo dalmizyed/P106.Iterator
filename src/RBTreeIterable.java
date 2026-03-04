@@ -94,22 +94,26 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
                 
                 // Check if node is less than maximum filter, if not, then cancel operation.
                 // If there is no maximum filter, then proceed as usual.
-                if (this.max != null && this.max.compareTo(node.data) > 0) {
+                if (this.max != null && this.max.compareTo(node.data) < 0) {
                     return;
                 }
 
                 // Check if node is greater than minimum filter
                 if (this.min != null) {
-                    if (this.min.compareTo(node.data) > 0 && node.getRight() != null) {
+                    if (this.min.compareTo(node.data) > 0) {
 
                         // If not, make a recursive call on the argument node's right subtree.
-                        updateStack(node.getRight());
+                        if (node.getRight() != null) {
+                            updateStack(node.getRight());
+                        }
 
-                    } else if (this.min.compareTo(node.data) < 0 && node.getLeft() != null) {
+                    } else {
 
-                        // If it is, then push the argument node onto the stack and make a recusive call on the left subtree.
+                        // If it is (min <= node.data), then push the argument node onto the stack and make a recursive call on the left subtree.
                         this.stack.push(node);
-                        updateStack(node.getLeft());
+                        if (node.getLeft() != null) {
+                            updateStack(node.getLeft());
+                        }
                     }
                 } else {
                     if (this.stack.isEmpty()) {
@@ -169,7 +173,6 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
 
         Integer nextData = tree.iterator().next();
         if (5 == nextData) {
-            System.out.println(nextData);
             return true;
         }
         return false;
@@ -188,16 +191,30 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
         tree.setIteratorMax(8);
         tree.setIteratorMin(3);
 
-        while (tree.iterator().hasNext()) {
-            System.out.println(tree.iterator().next());
+        int[] returnValues = new int[4];
+        int i = 0;
+
+        Iterator<Integer> iterator = tree.iterator();
+        while (iterator.hasNext()) {
+            returnValues[i] = iterator.next();
+            i++;
         }
-        return false;
+
+        int[] expectedValues = {3, 5, 7, 8};
+
+        for (int j = 0; j < returnValues.length; j++) {
+            if (returnValues[j] != expectedValues[j]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static void main(String[] args) {
         System.out.println("Tree is not null: " + testNonNullIterator());
         System.out.println("Simple Iterator: " + simpleIterator());
-        nonSimpleIterator();
+        System.out.println("Non-simple Iterator: " + nonSimpleIterator());
     }
 
 }
