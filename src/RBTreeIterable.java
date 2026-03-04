@@ -101,23 +101,23 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
                 // Check if node is greater than minimum filter
                 if (this.min != null) {
                     if (this.min.compareTo(node.data) > 0) {
-
                         // If not, make a recursive call on the argument node's right subtree.
                         if (node.getRight() != null) {
                             updateStack(node.getRight());
                         }
 
                     } else {
-
-                        // If it is (min <= node.data), then push the argument node onto the stack and make a recursive call on the left subtree.
+                        // If it is, then add argument node onto stack and make a recursive call on the left subtree.
                         this.stack.push(node);
                         if (node.getLeft() != null) {
                             updateStack(node.getLeft());
                         }
                     }
                 } else {
-                    if (this.stack.isEmpty()) {
-                        this.stack.push(node);
+                    // No minimum constraint, so add node to stack and process left subtree
+                    this.stack.push(node);
+                    if (node.getLeft() != null) {
+                        updateStack(node.getLeft());
                     }
                 }
                 
@@ -140,11 +140,7 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
          * Returns the next value of the iterator.
          * Amortized time complexity should be O(1).
          * Worst case time complexity should be O(log n).
-         * Do not implement this method by linearly walking through the
-         * entire tree from the smallest element until the start bound is reached.
-         * That process should occur only once during construction of the
-         * iterator object.
-         *
+         * 
          * @throws NoSuchElementException if the iterator has no more values to return
          */
         @Override
@@ -178,7 +174,7 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
         return false;
     }
 
-    public static boolean nonSimpleIterator() { // DOESNT WORK RIGHT NOW
+    public static boolean nonSimpleIterator() {
         RBTreeIterable<Integer> tree = new RBTreeIterable<>();
         tree.insert(1);
         tree.insert(2);
@@ -211,10 +207,171 @@ public class RBTreeIterable<T extends Comparable<T>> extends RedBlackTree<T> imp
         return true;
     }
 
+    /**
+     * Tests an Integer tree with no duplicate values and an iterator with both a
+     * start and stop value.
+     * Inserted values: 3, 5, 7, 8, 9, 10, 25
+     * Start point: 6
+     * Stop point: 11
+     * @return true if iterator returns the following values: 7, 8, 9, 10 in ascending order, 
+     * false otherwise.
+     */
+    public static boolean test1() {
+
+        // Create iterable Red-Black Tree.
+        RBTreeIterable<Integer> tree = new RBTreeIterable<>();
+
+        // Insert data.
+        tree.insert(3);
+        tree.insert(5);
+        tree.insert(7);
+        tree.insert(8);
+        tree.insert(9);
+        tree.insert(10);
+        tree.insert(25);
+
+        // Set bounds.
+        tree.setIteratorMin(6);
+        tree.setIteratorMax(11);
+
+        // Create empty array for storing all values passed by iterator.next().
+        int[] returnValues = new int[4];
+        int i = 0;
+
+        // Iterate through all values that fit within bounds and insert them into the returnValues array
+        // using iterator.hasNext() and iterator.next().
+        Iterator<Integer> iterator = tree.iterator();
+        while (iterator.hasNext()) {
+            returnValues[i] = iterator.next();
+            i++;
+        }
+
+        // Instantiate an array that equals the expected final state of the returnValues array.
+        int[] expectedValues = {7, 8, 9, 10};
+
+        // Check if returnValues == expectedValues.
+        for (int j = 0; j < returnValues.length; j++) {
+            if (returnValues[j] != expectedValues[j]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Tests a String tree with duplicate values and an iterator with only a
+     * start point value, not a stop point.
+     * Inserted values: "a", "b", "c", "c", "j", "j", "l", "o", "r", "w", "z"
+     * Start point: "c"
+     * @return true if iterator returns the following values: "c", "j", "l", "o", "r", "w", "z" in ascending order, 
+     * false otherwise.
+     */
+    public static boolean test2() {
+
+        // Create iterable Red-Black Tree.
+        RBTreeIterable<String> tree = new RBTreeIterable<>();
+
+        // Insert data.
+        tree.insert("a");
+        tree.insert("b");
+        tree.insert("c");
+        tree.insert("c");
+        tree.insert("j");
+        tree.insert("j");
+        tree.insert("l");
+        tree.insert("o");
+        tree.insert("r");
+        tree.insert("w");
+        tree.insert("z");
+
+        // Set start point.
+        tree.setIteratorMin("c");
+
+        // Create empty array for storing all values passed by iterator.next().
+        String[] returnValues = new String[9];
+        int i = 0;
+
+        // Iterate through all values that fit within bounds and insert them into the returnValues array
+        // using iterator.hasNext() and iterator.next().
+        Iterator<String> iterator = tree.iterator();
+        while (iterator.hasNext()) {
+            returnValues[i] = iterator.next();
+            i++;
+        }
+
+        // Instantiate an array that equals the expected final state of the returnValues array.
+        String[] expectedValues = {"c", "c", "j", "j", "l", "o", "r", "w", "z"};
+
+        // Check if returnValues == expectedValues.
+        for (int j = 0; j < returnValues.length; j++) {
+            if (!returnValues[j].equals(expectedValues[j])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Tests an Integer tree without duplicate values and an iterator with only a
+     * stop point value, not a start point.
+     * Inserted values: 2, 50, 75, 99, 101, 250, 350, 500
+     * Stop point: 100
+     * @return true if iterator returns the following values: 2, 50, 75, 99 in ascending order, 
+     * false otherwise.
+     */
+    public static boolean test3() {
+
+        // Create iterable Red-Black Tree.
+        RBTreeIterable<Integer> tree = new RBTreeIterable<>();
+
+        // Insert data.
+        tree.insert(2);
+        tree.insert(50);
+        tree.insert(75);
+        tree.insert(99);
+        tree.insert(101);
+        tree.insert(250);
+        tree.insert(350);
+        tree.insert(500);
+
+        // Set stop point.
+        tree.setIteratorMax(100);
+
+        // Create empty array for storing all values passed by iterator.next().
+        int[] returnValues = new int[4];
+        int i = 0;
+
+        // Iterate through all values that fit within bounds and insert them into the returnValues array
+        // using iterator.hasNext() and iterator.next().
+        Iterator<Integer> iterator = tree.iterator();
+        while (iterator.hasNext()) {
+            returnValues[i] = iterator.next();
+            i++;
+        }
+
+        // Instantiate an array that equals the expected final state of the returnValues array.
+        int[] expectedValues = {2, 50, 75, 99};
+
+        // Check if returnValues == expectedValues.
+        for (int j = 0; j < returnValues.length; j++) {
+            if (returnValues[j] != expectedValues[j]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static void main(String[] args) {
         System.out.println("Tree is not null: " + testNonNullIterator());
         System.out.println("Simple Iterator: " + simpleIterator());
         System.out.println("Non-simple Iterator: " + nonSimpleIterator());
+        System.out.println("\nJUnit Tests:");
+        System.out.println("Test 1: " + test1());
+        System.out.println("Test 2: " + test2());
+        System.out.println("Test 3: " + test3());
     }
 
 }
